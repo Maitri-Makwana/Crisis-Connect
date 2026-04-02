@@ -1,6 +1,6 @@
 # 🚨 Crisis Connect
 
-**Crisis Connect** is a real-time emergency management and coordination platform built for INFT2100. It enables Admins, Coordinators, and Volunteers to collaborate efficiently during crisis events.
+**Crisis Connect** is a real-time emergency management and coordination platform built for Capstone Project. It enables Admins, Coordinators, and Volunteers to collaborate efficiently during crisis events.
 
 ## 🌟 Features
 
