@@ -1,0 +1,167 @@
+[
+  {
+    "facility_name": "Toronto General Hospital",
+    "facility_type": "Hospital",
+    "street_no": "200",
+    "street_name": "Elizabeth St",
+    "postal_code": "M5G 2C4",
+    "city": "Toronto",
+    "prov_terr": "ON",
+    "latitude": 43.6588,
+    "longitude": -79.3888
+  },
+  {
+    "facility_name": "Vancouver General Hospital",
+    "facility_type": "Hospital",
+    "street_no": "899",
+    "street_name": "W 12th Ave",
+    "postal_code": "V5Z 1M9",
+    "city": "Vancouver",
+    "prov_terr": "BC",
+    "latitude": 49.2614,
+    "longitude": -123.1239
+  },
+  {
+    "facility_name": "Montreal General Hospital",
+    "facility_type": "Hospital",
+    "street_no": "1650",
+    "street_name": "Cedar Ave",
+    "postal_code": "H3G 1A4",
+    "city": "Montreal",
+    "prov_terr": "QC",
+    "latitude": 45.4975,
+    "longitude": -73.5898
+  },
+  {
+    "facility_name": "Sunnybrook Health Sciences Centre",
+    "facility_type": "Hospital",
+    "street_no": "2075",
+    "street_name": "Bayview Ave",
+    "postal_code": "M4N 3M5",
+    "city": "Toronto",
+    "prov_terr": "ON",
+    "latitude": 43.7226,
+    "longitude": -79.3773
+  },
+  {
+    "facility_name": "Mount Sinai Hospital",
+    "facility_type": "Hospital",
+    "street_no": "600",
+    "street_name": "University Ave",
+    "postal_code": "M5G 1X5",
+    "city": "Toronto",
+    "prov_terr": "ON",
+    "latitude": 43.6558,
+    "longitude": -79.3891
+  },
+  {
+    "facility_name": "The Hospital for Sick Children (SickKids)",
+    "facility_type": "Hospital",
+    "street_no": "555",
+    "street_name": "University Ave",
+    "postal_code": "M5G 1X8",
+    "city": "Toronto",
+    "prov_terr": "ON",
+    "latitude": 43.6573,
+    "longitude": -79.3872
+  },
+  {
+    "facility_name": "St. Paul's Hospital",
+    "facility_type": "Hospital",
+    "street_no": "1081",
+    "street_name": "Burrard St",
+    "postal_code": "V6Z 1Y6",
+    "city": "Vancouver",
+    "prov_terr": "BC",
+    "latitude": 49.2801,
+    "longitude": -123.1287
+  },
+  {
+    "facility_name": "Rockyview General Hospital",
+    "facility_type": "Hospital",
+    "street_no": "7007",
+    "street_name": "14 St SW",
+    "postal_code": "T2V 1P9",
+    "city": "Calgary",
+    "prov_terr": "AB",
+    "latitude": 50.9856,
+    "longitude": -114.0955
+  },
+  {
+    "facility_name": "Foothills Medical Centre",
+    "facility_type": "Hospital",
+    "street_no": "1403",
+    "street_name": "29 St NW",
+    "postal_code": "T2N 2T9",
+    "city": "Calgary",
+    "prov_terr": "AB",
+    "latitude": 51.0645,
+    "longitude": -114.1328
+  },
+  {
+    "facility_name": "Royal Alexandra Hospital",
+    "facility_type": "Hospital",
+    "street_no": "10240",
+    "street_name": "Kingsway NW",
+    "postal_code": "T5H 3V9",
+    "city": "Edmonton",
+    "prov_terr": "AB",
+    "latitude": 53.5557,
+    "longitude": -113.4984
+  },
+  {
+    "facility_name": "Health Sciences Centre Winnipeg",
+    "facility_type": "Hospital",
+    "street_no": "820",
+    "street_name": "Sherbrook St",
+    "postal_code": "R3A 1R9",
+    "city": "Winnipeg",
+    "prov_terr": "MB",
+    "latitude": 49.8973,
+    "longitude": -97.1601
+  },
+  {
+    "facility_name": "Queen Elizabeth II Health Sciences Centre",
+    "facility_type": "Hospital",
+    "street_no": "1276",
+    "street_name": "South Park St",
+    "postal_code": "B3H 2Y9",
+    "city": "Halifax",
+    "prov_terr": "NS",
+    "latitude": 44.6416,
+    "longitude": -63.5828
+  },
+  {
+    "facility_name": "The Ottawa Hospital - Civic Campus",
+    "facility_type": "Hospital",
+    "street_no": "1053",
+    "street_name": "Carling Ave",
+    "postal_code": "K1Y 4E9",
+    "city": "Ottawa",
+    "prov_terr": "ON",
+    "latitude": 45.3888,
+    "longitude": -75.7264
+  },
+  {
+    "facility_name": "CHUM (Centre hospitalier de l'Université de Montréal)",
+    "facility_type": "Hospital",
+    "street_no": "1000",
+    "street_name": "Rue Saint-Denis",
+    "postal_code": "H2X 0C1",
+    "city": "Montreal",
+    "prov_terr": "QC",
+    "latitude": 45.5117,
+    "longitude": -73.5556
+  },
+  {
+    "facility_name": "Regina General Hospital",
+    "facility_type": "Hospital",
+    "street_no": "1440",
+    "street_name": "14th Ave",
+    "postal_code": "S4P 0W5",
+    "city": "Regina",
+    "prov_terr": "SK",
+    "latitude": 50.4449,
+    "longitude": -104.5976
+  }
+]
