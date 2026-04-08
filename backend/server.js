@@ -11,24 +11,37 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Setup Nodemailer Ethereal test account (async setup done once)
+// Setup Nodemailer (Gmail App Password or Ethereal fallback)
 let transporter;
-nodemailer.createTestAccount((err, account) => {
-    if (err) {
-        console.error('Failed to create a testing account. ' + err.message);
-        return;
-    }
-    transporter = nodemailer.createTransport({
-        host: account.smtp.host,
-        port: account.smtp.port,
-        secure: account.smtp.secure,
-        auth: {
-            user: account.user,
-            pass: account.pass
+const initializeTransporter = async () => {
+    try {
+        if (process.env.SMTP_USER && process.env.SMTP_PASS) {
+            transporter = nodemailer.createTransport({
+                service: 'gmail',
+                auth: {
+                    user: process.env.SMTP_USER,
+                    pass: process.env.SMTP_PASS
+                }
+            });
+            console.log(`✅ SMTP initialized with REAL Gmail Account: ${process.env.SMTP_USER}`);
+        } else {
+            let testAccount = await nodemailer.createTestAccount();
+            transporter = nodemailer.createTransport({
+                host: "smtp.ethereal.email",
+                port: 587,
+                secure: false, 
+                auth: {
+                    user: testAccount.user,
+                    pass: testAccount.pass
+                }
+            });
+            console.log('🧪 SMTP running in Simulation Mode (Ethereal Email)');
         }
-    });
-    console.log('Nodemailer initialized with Ethereal Email');
-});
+    } catch (err) {
+        console.error('Failed to initialize email system: ' + err.message);
+    }
+};
+initializeTransporter();
 
 // Middleware
 app.use(cors());
@@ -270,7 +283,8 @@ app.get('/api/tasks', async (req, res) => {
         let params = [];
         
         if (volunteer_id) {
-            query += ` WHERE EXISTS (SELECT 1 FROM task_assignments sq WHERE sq.task_id = t.task_id AND sq.volunteer_id = $1)`;
+            // Ensure ID comparison is robust
+            query += ` WHERE EXISTS (SELECT 1 FROM task_assignments sq WHERE sq.task_id = t.task_id AND (sq.volunteer_id = $1 OR sq.volunteer_id::text = $1::text))`;
             params.push(volunteer_id);
         }
         
@@ -289,10 +303,10 @@ app.post('/api/tasks', async (req, res) => {
     const { incident_id, description, urgency, required_skills, task_type, latitude, longitude } = req.body;
     try {
         const { rows } = await db.query(`
-            INSERT INTO tasks (incident_id, description, urgency_level, required_skills, status, task_type, latitude, longitude)
-            VALUES ($1, $2, $3, $4, 'Open', $5, $6, $7)
+            INSERT INTO tasks (incident_id, description, urgency_level, status, task_type, latitude, longitude)
+            VALUES ($1, $2, $3, 'Open', $4, $5, $6)
             RETURNING task_id as id, incident_id, description, urgency_level as urgency, status, required_skills, task_type, latitude, longitude
-        `, [incident_id || null, description, urgency, required_skills, task_type || 'General Support', latitude || null, longitude || null]);
+        `, [incident_id || null, description, urgency, task_type || 'General Support', latitude || null, longitude || null]);
         res.json(rows[0]);
     } catch (err) {
         console.error('POST TASK ERROR:', err);
@@ -307,24 +321,70 @@ app.post('/api/tasks/:id/assign', async (req, res) => {
     try {
         await db.query('BEGIN');
         
+        // Fetch task details for the email payload
+        const taskResult = await db.query(`
+            SELECT t.description, t.urgency_level as urgency, t.task_type, i.incident_type
+            FROM tasks t
+            LEFT JOIN incidents i ON t.incident_id = i.incident_id
+            WHERE t.task_id = $1
+        `, [id]);
+        const taskData = taskResult.rows[0] || {};
+
+        // Use globally instantiated Ethereal transporter
+        console.log("\n=================== DISPATCHING EMAILS ===================");
+
         for (let vol_id of volunteer_ids) {
             await db.query(`
-                INSERT INTO task_assignments (task_id, volunteer_id, assigned_by)
-                VALUES ($1, $2, $3)
+                INSERT INTO task_assignments (task_id, volunteer_id, assigned_by, status)
+                VALUES ($1, $2, $3, 'Assigned')
                 ON CONFLICT (task_id, volunteer_id) DO NOTHING
             `, [id, vol_id, assigned_by]);
             
-            // Notify the volunteer
+            // Notify the volunteer internally
             await db.query(`
                 INSERT INTO notifications (user_id, message, type)
                 VALUES ($1, $2, 'Task')
-            `, [vol_id, `You have been mass-assigned to a new task. Please review your active deployment.`]);
+            `, [vol_id, `You have been assigned to a new task (${taskData.task_type}). Check your inbox.`]);
             
-            // Simulate Email Output for Each
-            console.log("--------------- EMAIL SIMULATION ---------------");
-            console.log(`Task Assigned internally to User_ID: ${vol_id}`);
-            console.log("----------------------------------------------");
+            // Fetch volunteer details for email
+            const volResult = await db.query('SELECT full_name, email FROM users WHERE user_id = $1', [vol_id]);
+            const volunteer = volResult.rows[0];
+
+            if (volunteer) {
+                try {
+                    // Send real or simulated email
+                    let info = await transporter.sendMail({
+                        from: '"CrisisConnect Command" <dispatch@crisisconnect.ca>',
+                        to: volunteer.email,
+                        subject: `🚨 URGENT DEPLOYMENT: ${taskData.urgency} Priority Tasks`,
+                        html: `
+                            <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #d32f2f; border-top: 5px solid #d32f2f;">
+                                <h2 style="color: #d32f2f;">Deployment Activation</h2>
+                                <p><strong>Hello ${volunteer.full_name},</strong></p>
+                                <p>You have been urgently requested for an active response operation. Please review the details below:</p>
+                                <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                                    <tr><td style="padding: 8px; border: 1px solid #ddd; background: #fafafa;"><strong>Incident:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${taskData.incident_type || 'General Support Task'}</td></tr>
+                                    <tr><td style="padding: 8px; border: 1px solid #ddd; background: #fafafa;"><strong>Task Type:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${taskData.task_type}</td></tr>
+                                    <tr><td style="padding: 8px; border: 1px solid #ddd; background: #fafafa;"><strong>Objectives:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${taskData.description}</td></tr>
+                                </table>
+                                <p>Please log in immediately to the <a href="http://localhost:5173/tasks">CrisisConnect Task Dashboard</a> to <strong>Accept</strong> or <strong>Reject</strong> this deployment.</p>
+                                <p style="font-size: 0.8rem; color: gray;">This is an automated dispatch from CrisisConnect Canada.</p>
+                            </div>
+                        `
+                    });
+                    
+                    console.log(`✉️ Email Sent to ${volunteer.full_name}`);
+                    if (nodemailer.getTestMessageUrl(info)) {
+                        console.log(`🔗 VIEW EMAIL LIVE: ${nodemailer.getTestMessageUrl(info)}\n`);
+                    }
+                } catch (emailErr) {
+                    console.error(`⚠️ Failed to send email to ${volunteer.full_name}:`, emailErr.message);
+                }
+            }
         }
+        
+        console.log("==========================================================\n");
+
         
         // Update task status to Assigned
         await db.query(`UPDATE tasks SET status = 'Assigned' WHERE task_id = $1`, [id]);
@@ -352,7 +412,7 @@ app.put('/api/tasks/assignments/:assignment_id', async (req, res) => {
 
         const { rows } = await db.query(`
             UPDATE task_assignments
-            SET assignment_status = $1
+            SET status = $1
             WHERE assignment_id = $2
             RETURNING *
         `, [status, assignment_id]);
@@ -524,8 +584,18 @@ app.post('/api/forgot-password', async (req, res) => {
 });
 
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
+});
+
+server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+        console.error(`ERROR: Port ${PORT} is already in use by another process.`);
+        console.error('The backend could not start. Please kill existing node processes and try again.');
+        process.exit(1);
+    } else {
+        console.error('SERVER ERROR:', err);
+    }
 });
 
 process.on('exit', (code) => {
