@@ -241,122 +241,159 @@ export default function Tasks() {
                         <p>{isVolunteer ? "You have no active assignments. Stand by for deployment." : "No tasks have been created yet."}</p>
                     </div>
                 ) : (
-                    tasks.map(task => (
-                        <div key={task.id} className="card" style={{ borderLeft: `6px solid ${getUrgencyColor(task.urgency)}` }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                <div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                                        <AlertCircle size={18} color={getUrgencyColor(task.urgency)} />
-                                        <span style={{ fontWeight: 'bold', color: getUrgencyColor(task.urgency) }}>{task.urgency} Urgency</span>
-                                        <span style={{ color: 'var(--text-muted)' }}>• Incident: {task.incident_type || 'General'}</span>
+                    (() => {
+                        const renderTaskCard = (task, isPendingView = false) => {
+                            const myAssignment = isVolunteer ? task.assignments?.find(a => Number(a.volunteer_id) === Number(user.user_id)) : null;
+                            
+                            return (
+                                <div key={task.id} className="card" style={{ borderLeft: `6px solid ${getUrgencyColor(task.urgency)}` }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                        <div>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                                                <AlertCircle size={18} color={getUrgencyColor(task.urgency)} />
+                                                <span style={{ fontWeight: 'bold', color: getUrgencyColor(task.urgency) }}>{task.urgency} Urgency</span>
+                                                <span style={{ color: 'var(--text-muted)' }}>• Incident: {task.incident_type || 'General'}</span>
+                                            </div>
+                                            <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>{task.description}</h3>
+                                            
+                                            {/* Details are hidden in the pending inbox to keep it clean, but fully visible in Active */}
+                                            {(!isPendingView) && task.required_skills && (
+                                                <p style={{ fontSize: '0.85rem', color: 'var(--secondary)', marginBottom: '1rem' }}>
+                                                    <strong>Requirements:</strong> {task.required_skills}
+                                                </p>
+                                            )}
+                                        </div>
+                                        <div style={{ textAlign: 'right' }}>
+                                            <span style={{ 
+                                                display: 'inline-block',
+                                                padding: '4px 12px', 
+                                                borderRadius: '50px', 
+                                                fontSize: '0.85rem', 
+                                                fontWeight: 'bold',
+                                                background: task.status === 'Completed' ? 'var(--success)' : (task.status === 'Open' ? '#eeeeee' : '#e3f2fd'),
+                                                color: task.status === 'Completed' ? 'white' : (task.status === 'Open' ? '#757575' : '#1976d2')
+                                            }}>
+                                                Task Status: {task.status}
+                                            </span>
+                                        </div>
                                     </div>
-                                    <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>{task.description}</h3>
-                                    {task.required_skills && (
-                                        <p style={{ fontSize: '0.85rem', color: 'var(--secondary)', marginBottom: '1rem' }}>
-                                            <strong>Requirements:</strong> {task.required_skills}
-                                        </p>
-                                    )}
-                                </div>
-                                <div style={{ textAlign: 'right' }}>
-                                    <span style={{ 
-                                        display: 'inline-block',
-                                        padding: '4px 12px', 
-                                        borderRadius: '50px', 
-                                        fontSize: '0.85rem', 
-                                        fontWeight: 'bold',
-                                        background: task.status === 'Completed' ? 'var(--success)' : (task.status === 'Open' ? '#eeeeee' : '#e3f2fd'),
-                                        color: task.status === 'Completed' ? 'white' : (task.status === 'Open' ? '#757575' : '#1976d2')
-                                    }}>
-                                        Task Status: {task.status}
-                                    </span>
-                                </div>
-                            </div>
 
-                            <hr style={{ border: 'none', borderTop: '1px solid var(--border)', margin: '1rem 0' }} />
+                                    <hr style={{ border: 'none', borderTop: '1px solid var(--border)', margin: '1rem 0' }} />
 
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                {/* Left Side: Assignment Info */}
-                                <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
-                                    {task.assignments && task.assignments.length > 0 ? (
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                                            <span style={{ color: 'var(--success)' }}><strong><CheckCircle size={14} style={{ display: 'inline', position: 'relative', top: '2px' }}/> Active Deployments ({task.assignments.length}):</strong></span>
-                                            <div style={{ maxHeight: '80px', overflowY: 'auto', paddingLeft: '1rem', borderLeft: '2px solid var(--success)' }}>
-                                            {task.assignments.map(a => (
-                                                <div key={a.assignment_id} style={{ display: 'flex', justifyContent: 'space-between', width: '250px' }}>
-                                                    <span>• {a.volunteer_name}</span> 
-                                                    <span style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>[{a.status}]</span>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        {/* Left Side: Assignment Info */}
+                                        <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+                                            {isPendingView ? (
+                                                <span style={{ color: 'var(--primary)' }}>Please review and respond to this dispatch request.</span>
+                                            ) : task.assignments && task.assignments.length > 0 ? (
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                                                    <span style={{ color: 'var(--success)' }}><strong><CheckCircle size={14} style={{ display: 'inline', position: 'relative', top: '2px' }}/> Active Deployments ({task.assignments.length}):</strong></span>
+                                                    <div style={{ maxHeight: '80px', overflowY: 'auto', paddingLeft: '1rem', borderLeft: '2px solid var(--success)' }}>
+                                                    {task.assignments.map(a => (
+                                                        <div key={a.assignment_id} style={{ display: 'flex', justifyContent: 'space-between', width: '250px' }}>
+                                                            <span>• {a.volunteer_name}</span> 
+                                                            <span style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>[{a.status}]</span>
+                                                        </div>
+                                                    ))}
+                                                    </div>
                                                 </div>
-                                            ))}
+                                            ) : (
+                                                <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--warning)' }}>
+                                                    <Clock size={16} /> Unassigned
+                                                </span>
+                                            )}
+                                        </div>
+
+                                        {/* Right Side: Actions based on Role */}
+                                        <div>
+                                            {/* Volunteer Actions */}
+                                            {isVolunteer && myAssignment && myAssignment.status !== 'Completed' && (
+                                                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                                    {myAssignment.status === 'Assigned' && (
+                                                        <>
+                                                            <button className="btn btn-primary btn-sm" onClick={() => handleUpdateAssignment(myAssignment.assignment_id, task.id, 'In Progress')}>Accept Task</button>
+                                                            <button className="btn btn-outline btn-sm" onClick={() => handleUpdateAssignment(myAssignment.assignment_id, task.id, 'Rejected')}>Reject</button>
+                                                        </>
+                                                    )}
+                                                    {myAssignment.status === 'In Progress' && (
+                                                        <button className="btn btn-sm" style={{ background: 'var(--success)', color: 'white' }} onClick={() => handleUpdateAssignment(myAssignment.assignment_id, task.id, 'Completed')}>Mark Completed</button>
+                                                    )}
+                                                </div>
+                                            )}
+
+                                            {/* Coordinator Actions */}
+                                            {!isVolunteer && task.status !== 'Completed' && (
+                                                showAssignForm === task.id ? (
+                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', minWidth: '300px' }}>
+                                                        <div style={{ maxHeight: '150px', overflowY: 'auto', border: '1px solid var(--border)', padding: '0.5rem', borderRadius: '4px', background: 'white' }}>
+                                                            {volunteers.map(v => {
+                                                                const isAlreadyAssigned = task.assignments?.some(a => a.volunteer_id === v.user_id && a.status !== 'Rejected');
+                                                                return (
+                                                                <label key={v.user_id} style={{ display: 'block', marginBottom: '4px', opacity: isAlreadyAssigned ? 0.5 : 1 }}>
+                                                                    <input 
+                                                                        type="checkbox" 
+                                                                        disabled={isAlreadyAssigned}
+                                                                        checked={assigneeIds.includes(v.user_id) || isAlreadyAssigned}
+                                                                        onChange={(e) => {
+                                                                            if (e.target.checked) setAssigneeIds([...assigneeIds, v.user_id]);
+                                                                            else setAssigneeIds(assigneeIds.filter(id => id !== v.user_id));
+                                                                        }}
+                                                                    /> <strong style={{color: 'var(--text)'}}>{v.name}</strong> <span style={{ fontSize: '0.75rem' }}>({v.skills})</span>
+                                                                </label>
+                                                            )})}
+                                                        </div>
+                                                        <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+                                                            <button className="btn btn-primary btn-sm" onClick={() => handleAssignTask(task.id)}>Dispatch ({assigneeIds.length})</button>
+                                                            <button className="btn-text btn-sm" onClick={() => setShowAssignForm(null)}>Cancel</button>
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <button className="btn btn-outline btn-sm" onClick={() => { setShowAssignForm(task.id); setAssigneeIds([]); }}>
+                                                        <UserPlus size={16} style={{ display: 'inline', marginRight: '4px' }} /> Add Volunteers
+                                                    </button>
+                                                )
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        };
+
+                        if (isVolunteer) {
+                            const pendingTasks = tasks.filter(t => t.assignments?.some(a => Number(a.volunteer_id) === Number(user.user_id) && a.status === 'Assigned'));
+                            const activeTasks = tasks.filter(t => t.assignments?.some(a => Number(a.volunteer_id) === Number(user.user_id) && a.status === 'In Progress'));
+                            
+                            return (
+                                <>
+                                    {pendingTasks.length > 0 && (
+                                        <div style={{ marginBottom: '2rem' }}>
+                                            <h3 style={{ color: 'var(--primary)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                                <AlertCircle size={24} /> Dispatch Requests ({pendingTasks.length})
+                                            </h3>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                                {pendingTasks.map(t => renderTaskCard(t, true))}
                                             </div>
                                         </div>
-                                    ) : (
-                                        <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--warning)' }}>
-                                            <Clock size={16} /> Unassigned
-                                        </span>
-                                    )}
-                                </div>
-
-                                {/* Right Side: Actions based on Role */}
-                                <div>
-                                    {/* Volunteer Actions */}
-                                    {isVolunteer && (
-                                        (() => {
-                                            const myAssignment = task.assignments?.find(a => a.volunteer_id === user.user_id);
-                                            if (myAssignment && myAssignment.status !== 'Completed') {
-                                                return (
-                                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                                        {myAssignment.status === 'Assigned' && (
-                                                            <>
-                                                                <button className="btn btn-primary btn-sm" onClick={() => handleUpdateAssignment(myAssignment.assignment_id, task.id, 'In Progress')}>Accept</button>
-                                                                <button className="btn btn-outline btn-sm" onClick={() => handleUpdateAssignment(myAssignment.assignment_id, task.id, 'Rejected')}>Reject</button>
-                                                            </>
-                                                        )}
-                                                        {myAssignment.status === 'In Progress' && (
-                                                            <button className="btn btn-sm" style={{ background: 'var(--success)', color: 'white' }} onClick={() => handleUpdateAssignment(myAssignment.assignment_id, task.id, 'Completed')}>Mark Completed</button>
-                                                        )}
-                                                    </div>
-                                                );
-                                            }
-                                            return null;
-                                        })()
                                     )}
 
-                                    {/* Coordinator Actions */}
-                                    {!isVolunteer && task.status !== 'Completed' && (
-                                        showAssignForm === task.id ? (
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', minWidth: '300px' }}>
-                                                <div style={{ maxHeight: '150px', overflowY: 'auto', border: '1px solid var(--border)', padding: '0.5rem', borderRadius: '4px', background: 'white' }}>
-                                                    {volunteers.map(v => {
-                                                        const isAlreadyAssigned = task.assignments?.some(a => a.volunteer_id === v.user_id && a.status !== 'Rejected');
-                                                        return (
-                                                        <label key={v.user_id} style={{ display: 'block', marginBottom: '4px', opacity: isAlreadyAssigned ? 0.5 : 1 }}>
-                                                            <input 
-                                                                type="checkbox" 
-                                                                disabled={isAlreadyAssigned}
-                                                                checked={assigneeIds.includes(v.user_id) || isAlreadyAssigned}
-                                                                onChange={(e) => {
-                                                                    if (e.target.checked) setAssigneeIds([...assigneeIds, v.user_id]);
-                                                                    else setAssigneeIds(assigneeIds.filter(id => id !== v.user_id));
-                                                                }}
-                                                            /> <strong style={{color: 'var(--text)'}}>{v.name}</strong> <span style={{ fontSize: '0.75rem' }}>({v.skills})</span>
-                                                        </label>
-                                                    )})}
-                                                </div>
-                                                <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
-                                                    <button className="btn btn-primary btn-sm" onClick={() => handleAssignTask(task.id)}>Dispatch ({assigneeIds.length})</button>
-                                                    <button className="btn-text btn-sm" onClick={() => setShowAssignForm(null)}>Cancel</button>
-                                                </div>
-                                            </div>
-                                        ) : (
-                                            <button className="btn btn-outline btn-sm" onClick={() => { setShowAssignForm(task.id); setAssigneeIds([]); }}>
-                                                <UserPlus size={16} style={{ display: 'inline', marginRight: '4px' }} /> Add Volunteers
-                                            </button>
-                                        )
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    ))
+                                    <div>
+                                        <h3 style={{ color: 'var(--success)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                            <CheckCircle size={24} /> Active Deployments ({activeTasks.length})
+                                        </h3>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                            {activeTasks.length === 0 ? (
+                                                <p className="text-muted">No active assignments to display.</p>
+                                            ) : (
+                                                activeTasks.map(t => renderTaskCard(t, false))
+                                            )}
+                                        </div>
+                                    </div>
+                                </>
+                            );
+                        } else {
+                            return tasks.map(t => renderTaskCard(t, false));
+                        }
+                    })()
                 )}
             </div>
         </div>
