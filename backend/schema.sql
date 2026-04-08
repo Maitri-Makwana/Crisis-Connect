@@ -17,6 +17,8 @@ CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(120) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     phone VARCHAR(20),
+    location VARCHAR(100),
+    skills TEXT,
     role_id INT REFERENCES roles(role_id),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -55,7 +57,7 @@ CREATE TABLE IF NOT EXISTS tasks (
     incident_id INT REFERENCES incidents(incident_id),
     task_type VARCHAR(100) NOT NULL,
     urgency VARCHAR(20) CHECK (
-        urgency IN ('Low', 'Medium', 'High')
+        urgency IN ('Low', 'Medium', 'High', 'Critical')
     ),
     status VARCHAR(20) CHECK (
         status IN ('Open', 'Assigned', 'In Progress', 'Completed')
@@ -71,8 +73,9 @@ CREATE TABLE IF NOT EXISTS task_assignments (
     assignment_id SERIAL PRIMARY KEY,
     task_id INT REFERENCES tasks(task_id) ON DELETE CASCADE,
     volunteer_id INT REFERENCES users(user_id),
+    assigned_by INT REFERENCES users(user_id),
     assignment_status VARCHAR(20) CHECK (
-        assignment_status IN ('Accepted', 'In Progress', 'Completed')
+        assignment_status IN ('Assigned', 'Accepted', 'In Progress', 'Completed', 'Rejected')
     ),
     assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -82,8 +85,8 @@ CREATE TABLE IF NOT EXISTS notifications (
     notification_id SERIAL PRIMARY KEY,
     user_id INT REFERENCES users(user_id),
     message TEXT NOT NULL,
-    notification_type VARCHAR(20) CHECK (
-        notification_type IN ('Email', 'In-App', 'SMS')
+    type VARCHAR(20) CHECK (
+        type IN ('Email', 'In-App', 'SMS', 'Task')
     ),
     is_read BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
