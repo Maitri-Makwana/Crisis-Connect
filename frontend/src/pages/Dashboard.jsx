@@ -20,11 +20,18 @@ export default function Dashboard() {
             fetch('http://localhost:5000/api/tasks').then(r => r.json()).then(d => { if(Array.isArray(d)) setTasks(d) }).catch(e => console.error(e));
             fetch('http://localhost:5000/api/incidents').then(r => r.json()).then(d => { if(Array.isArray(d)) setIncidents(d) }).catch(e => console.error(e));
             fetch('http://localhost:5000/api/users?role=Volunteer').then(r => r.json()).then(d => { if(Array.isArray(d)) setVolunteers(d) }).catch(e => console.error(e));
+        } else if (role === 'Volunteer' && user?.user_id) {
+            fetch(`http://localhost:5000/api/tasks?volunteer_id=${user.user_id}`).then(r => r.json()).then(d => { if(Array.isArray(d)) setTasks(d) }).catch(e => console.error(e));
         }
-    }, [role]);
+    }, [role, user?.user_id]);
 
     const activeIncidents = incidents.filter(i => i.status === 'Active').length;
-    const pendingTasks = tasks.filter(t => t.status === 'Open' || !t.volunteer_id).length;
+    const pendingTasksCount = role === 'Volunteer' 
+        ? tasks.filter(t => t.assignments?.some(a => Number(a.volunteer_id) === Number(user.user_id) && a.status === 'Assigned')).length
+        : tasks.filter(t => t.status === 'Open' || !t.volunteer_id).length;
+    const myActiveTasksCount = role === 'Volunteer'
+        ? tasks.filter(t => t.assignments?.some(a => Number(a.volunteer_id) === Number(user.user_id) && a.status === 'In Progress')).length
+        : 0;
 
     const renderAdminDashboard = () => (
         <>
@@ -69,7 +76,7 @@ export default function Dashboard() {
             <div className="grid-3 mb-5">
                 <Link to="/tasks" className="card" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1.5rem', borderLeft: '4px solid var(--accent)', textDecoration: 'none', color: 'inherit' }}>
                     <div style={{ background: '#FFF8E1', padding: '1rem', borderRadius: '50%' }}><Radio color="var(--warning)" /></div>
-                    <div><h3 style={{ margin: 0, fontSize: '1.5rem' }}>{pendingTasks}</h3><p style={{ margin: 0, color: 'var(--text-muted)' }}>Pending Tasks</p></div>
+                    <div><h3 style={{ margin: 0, fontSize: '1.5rem' }}>{pendingTasksCount}</h3><p style={{ margin: 0, color: 'var(--text-muted)' }}>Pending Tasks</p></div>
                 </Link>
                 <Link to="/news" className="card" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1.5rem', textDecoration: 'none', color: 'inherit' }}>
                     <div style={{ background: '#E3F2FD', padding: '1rem', borderRadius: '50%' }}><AlertCircle color="#1976D2" /></div>
@@ -108,10 +115,10 @@ export default function Dashboard() {
                     <div style={{ background: '#E8F5E9', padding: '1rem', borderRadius: '50%' }}><UserCheck color="var(--success)" /></div>
                     <div><h3 style={{ margin: 0, fontSize: '1.5rem' }}>Ready</h3><p style={{ margin: 0, color: 'var(--text-muted)' }}>Duty Status</p></div>
                 </div>
-                <div className="card" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1.5rem' }}>
+                <Link to="/tasks" className="card" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1.5rem', textDecoration: 'none', color: 'inherit' }}>
                     <div style={{ background: '#FFF8E1', padding: '1rem', borderRadius: '50%' }}><FileText color="var(--warning)" /></div>
-                    <div><h3 style={{ margin: 0, fontSize: '1.5rem' }}>0</h3><p style={{ margin: 0, color: 'var(--text-muted)' }}>Assigned Tasks</p></div>
-                </div>
+                    <div><h3 style={{ margin: 0, fontSize: '1.5rem' }}>{myActiveTasksCount}</h3><p style={{ margin: 0, color: 'var(--text-muted)' }}>Active Tasks</p></div>
+                </Link>
                 <div className="card" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1.5rem' }}>
                     <div style={{ background: '#E3F2FD', padding: '1rem', borderRadius: '50%' }}><Map color="#1976D2" /></div>
                     <div><h3 style={{ margin: 0, fontSize: '1.5rem' }}>14km</h3><p style={{ margin: 0, color: 'var(--text-muted)' }}>Nearest Incident</p></div>
