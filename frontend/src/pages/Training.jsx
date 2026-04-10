@@ -48,7 +48,7 @@ export default function Training() {
                         </div>
                         <div style={{ padding: '2rem', textAlign: 'center' }}>
                             <p className="mb-3">Step-by-step guide for infant CPR.</p>
-                            <button className="btn btn-outline" style={{ width: '100%' }}>Download PDF</button>
+                            <a href="https://www.redcross.org/content/dam/redcross/atg/PDFs/Take_a_Class/Pediatric_ready_reference.pdf" target="_blank" rel="noreferrer" className="btn btn-outline" style={{ display: 'block', width: '100%' }}>Download PDF</a>
                         </div>
                     </div>
                     <div className="card">
@@ -58,7 +58,7 @@ export default function Training() {
                         </div>
                         <div style={{ padding: '2rem', textAlign: 'center' }}>
                             <p className="mb-3">How to use an AED effectively.</p>
-                            <button className="btn btn-outline" style={{ width: '100%' }}>Download PDF</button>
+                            <a href="https://www.redcross.ca/crc/documents/3-1-2-AED-Checklist_EN.pdf" target="_blank" rel="noreferrer" className="btn btn-outline" style={{ display: 'block', width: '100%' }}>Download PDF</a>
                         </div>
                     </div>
                     <div className="card">
@@ -68,7 +68,7 @@ export default function Training() {
                         </div>
                         <div style={{ padding: '2rem', textAlign: 'center' }}>
                             <p className="mb-3">Heimlich maneuver instructions.</p>
-                            <button className="btn btn-outline" style={{ width: '100%' }}>Download PDF</button>
+                            <a href="https://www.redcross.org/content/dam/redcross/atg/PDFs/Take_a_Class/ConsciousChokingPoster.pdf" target="_blank" rel="noreferrer" className="btn btn-outline" style={{ display: 'block', width: '100%' }}>Download PDF</a>
                         </div>
                     </div>
                 </div>
@@ -99,34 +99,45 @@ export default function Training() {
             {/* Section 4: Training Videos */}
             <section>
                 <h2 className="mb-4">Training Videos</h2>
-                <div className="grid-2">
+                <div className="grid-3">
                     <div className="card">
                         <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, overflow: 'hidden', borderRadius: '8px', marginBottom: '1rem', background: '#000' }}>
                             <iframe
                                 style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
-                                src="https://www.youtube.com/embed/CoswbqdcXGQ"
-                                title="Hands-Only CPR"
+                                src="https://www.youtube.com/embed/msGasJkSvzE"
+                                title="Training Video 1"
                                 frameBorder="0"
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                 allowFullScreen
                             ></iframe>
                         </div>
-                        <h4>Hands-Only CPR</h4>
-                        <p>Learn the two simple steps to save a life with the American Red Cross.</p>
+                        <h4>Disaster Response Overview</h4>
                     </div>
                     <div className="card">
                         <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, overflow: 'hidden', borderRadius: '8px', marginBottom: '1rem', background: '#000' }}>
                             <iframe
                                 style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
-                                src="https://www.youtube.com/embed/A83F2d9jwbw"
-                                title="How to Use an AED"
+                                src="https://www.youtube.com/embed/BLEPakj1YTY"
+                                title="Training Video 2"
                                 frameBorder="0"
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                 allowFullScreen
                             ></iframe>
                         </div>
-                        <h4>How to Use an AED</h4>
-                        <p>Step-by-step guide on using an Automated External Defibrillator.</p>
+                        <h4>Community Coordination</h4>
+                    </div>
+                    <div className="card">
+                        <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, overflow: 'hidden', borderRadius: '8px', marginBottom: '1rem', background: '#000' }}>
+                            <iframe
+                                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+                                src="https://www.youtube.com/embed/7EDflnGzjTY"
+                                title="Training Video 3"
+                                frameBorder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                            ></iframe>
+                        </div>
+                        <h4>Safety Best Practices</h4>
                     </div>
                 </div>
             </section>

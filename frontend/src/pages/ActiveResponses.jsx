@@ -1,3 +1,4 @@
+import { API_URL } from '../config';
 import { useState, useEffect } from 'react';
 import { AlertTriangle, Info, PlusCircle, X, Edit2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -23,7 +24,7 @@ export default function ActiveResponses() {
 
     const fetchIncidents = async () => {
         try {
-            const res = await fetch('http://localhost:5000/api/incidents');
+            const res = await fetch(`${API_URL}/api/incidents`);
             const data = await res.json();
             setIncidents(data);
         } catch (err) {
@@ -47,7 +48,7 @@ export default function ActiveResponses() {
             const parsedLat = parseFloat(geoData[0].lat);
             const parsedLon = parseFloat(geoData[0].lon);
 
-            const res = await fetch('http://localhost:5000/api/incidents', {
+            const res = await fetch(`${API_URL}/api/incidents`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -72,7 +73,7 @@ export default function ActiveResponses() {
     const handleEditSubmit = async (e) => {
         e.preventDefault();
         try {
-            const res = await fetch(`http://localhost:5000/api/incidents/${editIncident.id}`, {
+            const res = await fetch(`${API_URL}/api/incidents/${editIncident.id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

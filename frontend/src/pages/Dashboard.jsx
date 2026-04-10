@@ -1,3 +1,4 @@
+import { API_URL } from '../config';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Map, List, UserCheck, AlertCircle, FileText, Settings, Shield, Users, Radio, Activity, X } from 'lucide-react';
@@ -17,11 +18,11 @@ export default function Dashboard() {
 
     useEffect(() => {
         if (role === 'Coordinator' || role === 'Admin') {
-            fetch('http://localhost:5000/api/tasks').then(r => r.json()).then(d => { if(Array.isArray(d)) setTasks(d) }).catch(e => console.error(e));
-            fetch('http://localhost:5000/api/incidents').then(r => r.json()).then(d => { if(Array.isArray(d)) setIncidents(d) }).catch(e => console.error(e));
-            fetch('http://localhost:5000/api/users?role=Volunteer').then(r => r.json()).then(d => { if(Array.isArray(d)) setVolunteers(d) }).catch(e => console.error(e));
+            fetch(`${API_URL}/api/tasks`).then(r => r.json()).then(d => { if(Array.isArray(d)) setTasks(d) }).catch(e => console.error(e));
+            fetch(`${API_URL}/api/incidents`).then(r => r.json()).then(d => { if(Array.isArray(d)) setIncidents(d) }).catch(e => console.error(e));
+            fetch(`${API_URL}/api/users?role=Volunteer`).then(r => r.json()).then(d => { if(Array.isArray(d)) setVolunteers(d) }).catch(e => console.error(e));
         } else if (role === 'Volunteer' && user?.user_id) {
-            fetch(`http://localhost:5000/api/tasks?volunteer_id=${user.user_id}`).then(r => r.json()).then(d => { if(Array.isArray(d)) setTasks(d) }).catch(e => console.error(e));
+            fetch(`${API_URL}/api/tasks?volunteer_id=${user.user_id}`).then(r => r.json()).then(d => { if(Array.isArray(d)) setTasks(d) }).catch(e => console.error(e));
         }
     }, [role, user?.user_id]);
 

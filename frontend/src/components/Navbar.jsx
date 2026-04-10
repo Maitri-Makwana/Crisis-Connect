@@ -1,3 +1,4 @@
+import { API_URL } from '../config';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Heart, Search, Globe, Bell, Check } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
@@ -36,7 +37,7 @@ export default function Navbar() {
 
         const fetchNotifications = async () => {
             try {
-                const res = await fetch(`http://localhost:5000/api/notifications?user_id=${user.user_id}`);
+                const res = await fetch(`${API_URL}/api/notifications?user_id=${user.user_id}`);
                 const data = await res.json();
                 if (Array.isArray(data)) setNotifications(data);
             } catch (err) {
@@ -68,7 +69,7 @@ export default function Navbar() {
 
     const markAsRead = async (id) => {
         try {
-            await fetch(`http://localhost:5000/api/notifications/${id}/read`, { method: 'PUT' });
+            await fetch(`${API_URL}/api/notifications/${id}/read`, { method: 'PUT' });
             setNotifications(notifications.map(n => n.id === id ? { ...n, is_read: true } : n));
         } catch (err) {
             console.error('Error marking as read', err);

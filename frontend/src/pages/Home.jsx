@@ -89,9 +89,13 @@ export default function Home() {
                         </div>
                         <div className="card" style={{ padding: '0.5rem', transform: 'rotate(2deg)' }}>
                             {/* Placeholder for map image - using a generic map screenshot or div */}
-                            <div style={{ background: '#ddd', height: '300px', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#888' }}>
-                                <MapPin size={64} style={{ opacity: 0.5 }} />
-                                <span>Interactive Map Preview</span>
+                            <div style={{ background: '#ddd', height: '300px', borderRadius: '4px', overflow: 'hidden' }}>
+                                <iframe 
+                                    width="100%" height="100%" 
+                                    style={{ border: 0 }} 
+                                    loading="lazy" 
+                                    src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d11496455.513401566!2d-96.81639999999998!3d54.0205562!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sca!4v1712600000000!5m2!1sen!2sca"
+                                ></iframe>
                             </div>
                         </div>
                     </div>

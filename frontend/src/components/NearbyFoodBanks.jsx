@@ -1,3 +1,4 @@
+import { API_URL } from '../config';
 import { useState } from 'react';
 import { MapPin, Navigation, Loader, AlertTriangle } from 'lucide-react';
 
@@ -22,7 +23,7 @@ export default function NearbyFoodBanks() {
                 const lng = position.coords.longitude;
                 // Alternatively, don't pass type if we want ALL resources. But they specifically asked for Food Banks
                 try {
-                    const res = await fetch(`http://localhost:5000/api/resources/nearby?lat=${lat}&lng=${lng}&type=Food%20Bank`);
+                    const res = await fetch(`${API_URL}/api/resources/nearby?lat=${lat}&lng=${lng}&type=Food%20Bank`);
                     const data = await res.json();
                     
                     if (!res.ok) throw new Error(data.error || 'Failed to fetch nearby resources');

@@ -1,3 +1,4 @@
+import { API_URL } from '../config';
 import { useState, useEffect } from 'react';
 import { CheckCircle, Clock, AlertCircle, UserPlus, FileText } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -29,8 +30,8 @@ export default function Tasks() {
     const fetchTasks = async () => {
         try {
             const url = isVolunteer 
-                ? `http://localhost:5000/api/tasks?volunteer_id=${user.user_id}` 
-                : 'http://localhost:5000/api/tasks';
+                ? `${API_URL}/api/tasks?volunteer_id=${user.user_id}` 
+                : `${API_URL}/api/tasks`;
             const res = await fetch(url);
             const data = await res.json();
             if (Array.isArray(data)) setTasks(data);
@@ -41,7 +42,7 @@ export default function Tasks() {
 
     const fetchIncidents = async () => {
         try {
-            const res = await fetch('http://localhost:5000/api/incidents');
+            const res = await fetch(`${API_URL}/api/incidents`);
             const data = await res.json();
             if (Array.isArray(data)) setIncidents(data);
         } catch (err) {
@@ -51,7 +52,7 @@ export default function Tasks() {
 
     const fetchVolunteers = async () => {
         try {
-            const res = await fetch('http://localhost:5000/api/users?role=Volunteer');
+            const res = await fetch(`${API_URL}/api/users?role=Volunteer`);
             const data = await res.json();
             if (Array.isArray(data)) setVolunteers(data);
         } catch (err) {
@@ -80,7 +81,7 @@ export default function Tasks() {
                 longitude: lon
             };
 
-            const res = await fetch('http://localhost:5000/api/tasks', {
+            const res = await fetch(`${API_URL}/api/tasks`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -98,7 +99,7 @@ export default function Tasks() {
     const handleAssignTask = async (taskId) => {
         if (assigneeIds.length === 0) return alert('Select at least one volunteer');
         try {
-            const res = await fetch(`http://localhost:5000/api/tasks/${taskId}/assign`, {
+            const res = await fetch(`${API_URL}/api/tasks/${taskId}/assign`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ volunteer_ids: assigneeIds, assigned_by: user.user_id })
@@ -115,7 +116,7 @@ export default function Tasks() {
 
     const handleUpdateAssignment = async (assignmentId, taskId, status) => {
         try {
-            const res = await fetch(`http://localhost:5000/api/tasks/assignments/${assignmentId}`, {
+            const res = await fetch(`${API_URL}/api/tasks/assignments/${assignmentId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ status, task_id: taskId })

@@ -1,3 +1,4 @@
+import { API_URL } from '../config';
 import { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
@@ -9,19 +10,36 @@ delete L.Icon.Default.prototype._getIconUrl;
 
 // Custom Marker Icons using divIcon for easy coloring
 const createCustomIcon = (color, shape = 'circle') => {
-    return L.divIcon({
-        className: 'custom-div-icon',
-        html: `<div style="
+    let htmlContent = '';
+    if (shape === 'triangle') {
+        htmlContent = `<div style="width: 0; height: 0; border-left: 9px solid transparent; border-right: 9px solid transparent; border-bottom: 16px solid ${color}; filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.5)); transform: translateY(-4px);"></div>`;
+    } else {
+        const isSquare = shape === 'square';
+        htmlContent = `<div style="
             background-color: ${color};
-            width: ${shape === 'square' ? '16px' : '14px'};
-            height: ${shape === 'square' ? '16px' : '14px'};
-            border-radius: ${shape === 'square' ? '2px' : '50%'};
+            width: ${isSquare ? '16px' : '14px'};
+            height: ${isSquare ? '16px' : '14px'};
+            border-radius: ${isSquare ? '2px' : '50%'};
             border: 2px solid white;
             box-shadow: 0 0 4px rgba(0,0,0,0.4);
-        "></div>`,
+        "></div>`;
+    }
+
+    return L.divIcon({
+        className: 'custom-div-icon',
+        html: htmlContent,
         iconSize: [20, 20],
         iconAnchor: [10, 10]
     });
+};
+
+const getTaskColor = (urgency) => {
+    switch(urgency) {
+        case 'Critical': return 'var(--error)';
+        case 'High': return 'var(--warning)';
+        case 'Medium': return '#FBC02D';
+        default: return 'var(--success)';
+    }
 };
 
 const getResourceColor = (status) => {
@@ -49,6 +67,7 @@ export default function MapPage() {
     const [filters, setFilters] = useState({
         showResources: true,
         showIncidents: true,
+        showTasks: true,
         resourceType: 'All',
         status: 'All'
     });
@@ -63,9 +82,9 @@ export default function MapPage() {
     const fetchData = async () => {
         try {
             const [resData, incData, tasksData] = await Promise.all([
-                fetch('http://localhost:5000/api/resources').then(r => r.json()),
-                fetch('http://localhost:5000/api/incidents').then(r => r.json()),
-                fetch('http://localhost:5000/api/tasks').then(r => r.json())
+                fetch(`${API_URL}/api/resources`).then(r => r.json()),
+                fetch(`${API_URL}/api/incidents`).then(r => r.json()),
+                fetch(`${API_URL}/api/tasks`).then(r => r.json())
             ]);
             setResources(resData);
             setIncidents(incData);
@@ -85,6 +104,13 @@ export default function MapPage() {
     const filteredIncidents = incidents.filter(i => {
         if (!filters.showIncidents) return false;
         if (i.status === 'Resolved') return false; // Only show active incidents on map
+        return true;
+    });
+
+    const filteredTasks = tasks.filter(t => {
+        if (!filters.showTasks) return false;
+        if (t.status === 'Completed') return false; // Hide completed tasks
+        if (!t.latitude || !t.longitude) return false; // Must have location
         return true;
     });
 
@@ -141,6 +167,17 @@ export default function MapPage() {
                             Available Resources
                         </span>
                     </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                        <input 
+                            type="checkbox" 
+                            checked={filters.showTasks} 
+                            onChange={e => setFilters({...filters, showTasks: e.target.checked})} 
+                        />
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <div style={{ width: 0, height: 0, borderLeft: '6px solid transparent', borderRight: '6px solid transparent', borderBottom: '10px solid #FBC02D' }}></div> 
+                            Active Tasks
+                        </span>
+                    </label>
                 </div>
 
                 <hr style={{ border: 'none', borderTop: '1px solid var(--border)', margin: '1.5rem 0' }} />
@@ -189,6 +226,10 @@ export default function MapPage() {
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
                         <span color="var(--text-muted)">Resources:</span>
                         <strong>{filteredResources.length}</strong>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
+                        <span color="var(--text-muted)">Tasks Plotted:</span>
+                        <strong>{filteredTasks.length}</strong>
                     </div>
                 </div>
             </div>
@@ -249,6 +290,26 @@ export default function MapPage() {
                                     {resource.contact && <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem' }}>Contact: {resource.contact}</p>}
                                     
                                     <button className="btn btn-sm btn-primary" style={{ width: '100%' }}><Navigation size={14} style={{ display: 'inline', marginRight: '4px' }}/> Get Directions</button>
+                                </div>
+                            </Popup>
+                        </Marker>
+                    ))}
+
+                    {/* Render Tasks */}
+                    {filteredTasks.map(task => (
+                        <Marker 
+                            key={`task-${task.id}`} 
+                            position={[task.latitude, task.longitude]}
+                            icon={createCustomIcon(getTaskColor(task.urgency), 'triangle')}
+                        >
+                            <Popup>
+                                <div>
+                                    <strong style={{ fontSize: '1.1rem', display: 'block', marginBottom: '0.25rem' }}>{task.task_type}</strong>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', marginBottom: '0.5rem' }}>
+                                        <span style={{ fontSize: '0.85rem', color: getTaskColor(task.urgency), fontWeight: '600' }}>{task.urgency} Priority</span>
+                                        <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: '600' }}>{task.status}</span>
+                                    </div>
+                                    <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem' }}>{task.description}</p>
                                 </div>
                             </Popup>
                         </Marker>

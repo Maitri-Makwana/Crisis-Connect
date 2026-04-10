@@ -1,3 +1,4 @@
+import { API_URL } from '../config';
 import { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash, MapPin } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -24,7 +25,7 @@ export default function Resources() {
 
     const fetchResources = async () => {
         try {
-            const res = await fetch('http://localhost:5000/api/resources');
+            const res = await fetch(`${API_URL}/api/resources`);
             const data = await res.json();
             setResources(data);
         } catch (err) {
@@ -48,7 +49,7 @@ export default function Resources() {
             const parsedLat = parseFloat(geoData[0].lat);
             const parsedLon = parseFloat(geoData[0].lon);
 
-            const res = await fetch('http://localhost:5000/api/resources', {
+            const res = await fetch(`${API_URL}/api/resources`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -73,7 +74,7 @@ export default function Resources() {
     const handleDelete = async (id) => {
         if (!window.confirm('Are you sure you want to delete this resource?')) return;
         try {
-            const res = await fetch(`http://localhost:5000/api/resources/${id}`, {
+            const res = await fetch(`${API_URL}/api/resources/${id}`, {
                 method: 'DELETE'
             });
             if (res.ok) {
@@ -86,7 +87,7 @@ export default function Resources() {
 
     const handleUpdateStatus = async (id, newStatus) => {
         try {
-            const res = await fetch(`http://localhost:5000/api/resources/${id}`, {
+            const res = await fetch(`${API_URL}/api/resources/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ status: newStatus })
