@@ -56,6 +56,10 @@ app.use((req, res, next) => {
 
 // Routes
 
+app.get('/', (req, res) => {
+    res.send('CrisisConnect API is running smoothly! 🚀');
+});
+
 // GET /api/resources/nearby
 // Calculates distance using Haversine formula and returns closest resources
 app.get('/api/resources/nearby', async (req, res) => {
